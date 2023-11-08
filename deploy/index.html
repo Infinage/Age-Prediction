@@ -13,10 +13,14 @@
     <h1>Age Detection using a custom TFLite Model</h1>
     <p>Wait for the model to load before clicking the button to enable the webcam - at which point it will become visible to use.</p>
     <section id="age-detection-section" class="invisible">
-    <p>When ready click "enable webcam" below and accept access to the webcam when the browser asks (check the top left of your window)</p>
+    <p>When ready click "enable webcam" below and accept access to the webcam when the browser asks (check the top left of your window). To close the webcam click "Disable webcam".</p>
       <div id="liveView" class="camView">
-        <button id="webcamButton">Enable Webcam</button>
-        <video id="webcam" autoplay muted width="640" height="480"></video>
+        <button id="enableWebcamButton">Enable Webcam</button>
+        <button id="disableWebcamButton" class="removed">Disable Webcam</button>
+        <div id="preview">
+          <video id="webcam_ip" muted autoplay width="640" height="480"></video>
+          <canvas id="webcam_op"></canvas>
+        </div>
       </div>
     </section>
 
@@ -26,6 +30,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-tflite@0.0.1-alpha.6/dist/tf-tflite.min.js"></script>
     <!-- Import the page's JavaScript to do some stuff -->
     <script src="opencv.js" type="text/javascript"></script>
+    <script src="utils.js" type="text/javascript"></script>
     <script src="script.js" defer></script>
 
   </body>
