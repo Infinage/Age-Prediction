@@ -69,10 +69,6 @@ section {
   position: absolute;
 }
 
-#webcam_ip {
-  display: none;
-}
-
 #preview {
   padding: 10px 0px;
 }
