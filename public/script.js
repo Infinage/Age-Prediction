@@ -21,6 +21,11 @@ const ageDetectionSection = document.getElementById('age-detection-section');
 const enableWebcamButton = document.getElementById('enableWebcamButton');
 const disableWebcamButton = document.getElementById('disableWebcamButton');
 
+const resizeVideoDimensions = () => {
+  video.height = Math.min(window.screen.height * 0.65, 480);
+  video.width = Math.min(window.screen.width * 0.85, 640);
+}
+
 const faceCascade = new cv.CascadeClassifier();
 let faceCascadeFile = 'haarcascade_frontalface_default.xml';
 let utils = new Utils('errorMessage');
@@ -65,10 +70,12 @@ function enableCam(event) {
     video: true
   };
 
+  video.addEventListener('loadedmetadata', resizeVideoDimensions);
+
   // Activate the webcam stream.
   navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
     video.srcObject = stream;
-    video.addEventListener('loadeddata', () => predictAge(video));
+    video.addEventListener('loadedmetadata', () => predictAge(video));
   });
 }
 
@@ -85,6 +92,8 @@ function disableCam(event){
   if (video.srcObject) {
     video.srcObject.getTracks().forEach((track) => track.stop());
   }
+
+  video.removeEventListener('loadedmetadata', resizeVideoDimensions);
 }
 
 // Detect faces from the image
@@ -92,14 +101,16 @@ async function predictAge(video) {
     
     let cap = new cv.VideoCapture('webcam_ip');
     const FPS = 10;
-    const contextWidth = video.width * 0.05;
-    const contextHeight = video.height * 0.10;
+    const videoTagHeight = video.height;
+    const videoTagWidth = video.width;
+    const contextWidth = videoTagWidth * 0.05;
+    const contextHeight = videoTagHeight * 0.10;
 
     function processVideo() {
 
         let begin = Date.now();
-        let src = new cv.Mat(video.height, video.width, cv.CV_8UC4);
-        let dst = new cv.Mat(video.height, video.width, cv.CV_8UC4);
+        let src = new cv.Mat(videoTagHeight, videoTagWidth, cv.CV_8UC4);
+        let dst = new cv.Mat(videoTagHeight, videoTagWidth, cv.CV_8UC4);
         let gray = new cv.Mat();
         let faces = new cv.RectVector();
 

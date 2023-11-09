@@ -8,10 +8,11 @@ A live inference demo is deployed on [Netlify](https://age-pred.netlify.app/).
 1. ~~Train a simple age detection model~~
 2. ~~Convert trained model to TFLite~~
 3. ~~Using Opencv JS & TFJS create a live age detection UI~~
-4. ~~Dockerize the code & deploy the front end only code~~
-5. Add Github Actions
-6. Improve model prediction accuracy
-6. Explore options to train and use Yolo for face detection
+4. ~~Dockerize development environment~~
+4. ~~Deploy the front end only code~~
+5. ~~Mobile friendly inference~~
+7. Improve age prediction model accuracy
+8. Explore options to train and use Yolo for face detection
 
 ### Useful links
 - Age prediction dataset: https://www.kaggle.com/datasets/mariafrenti/age-prediction 
