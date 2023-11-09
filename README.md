@@ -1,11 +1,16 @@
 ## Age Detection
 
+The goal of this project is to explore the full end to end life cycle of a Machine learning project. Although the model predictions aren't great, the pipeline to build, train and deploy has been tested to work well. 
+
+A live inference demo is deployed on [Netlify](https://age-pred.netlify.app/).
+
 ### TODO
 1. ~~Train a simple age detection model~~
 2. ~~Convert trained model to TFLite~~
 3. ~~Using Opencv JS & TFJS create a live age detection UI~~
-4. Dockerize the code & deploy the front end only code
+4. ~~Dockerize the code & deploy the front end only code~~
 5. Add Github Actions
+6. Improve model prediction accuracy
 6. Explore options to train and use Yolo for face detection
 
 ### Useful links
