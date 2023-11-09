@@ -68,3 +68,7 @@ section {
   z-index: 1;
   position: absolute;
 }
+
+#webcam_ip {
+  display: none;
+}

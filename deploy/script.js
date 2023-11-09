@@ -68,7 +68,7 @@ function enableCam(event) {
   // Activate the webcam stream.
   navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
     video.srcObject = stream;
-    video.addEventListener('loadeddata', () => predictAge(video, stream));
+    video.addEventListener('loadeddata', () => predictAge(video));
   });
 }
 
@@ -88,35 +88,62 @@ function disableCam(event){
 }
 
 // Detect faces from the image
-async function predictAge(video, frame) {
+async function predictAge(video) {
     
-    let src = new cv.Mat(video.height, video.width, cv.CV_8UC4);
-    let dst = new cv.Mat(video.height, video.width, cv.CV_8UC4);
-    let gray = new cv.Mat();
     let cap = new cv.VideoCapture('webcam_ip');
-    let faces = new cv.RectVector();
+    const FPS = 10;
+    const contextSize = 5;
 
-    const FPS = 24;
     function processVideo() {
+
         let begin = Date.now();
+        let src = new cv.Mat(video.height, video.width, cv.CV_8UC4);
+        let dst = new cv.Mat(video.height, video.width, cv.CV_8UC4);
+        let gray = new cv.Mat();
+        let faces = new cv.RectVector();
+
         cap.read(src);
         src.copyTo(dst);
         cv.cvtColor(dst, gray, cv.COLOR_RGBA2GRAY, 0);
+
         try{
             faceCascade.detectMultiScale(gray, faces, 1.1, 3, 0);
-            console.log(faces.size());
-        }catch(err){
+        } catch(err){
             console.log(err);
         }
         for (let i = 0; i < faces.size(); ++i) {
             let face = faces.get(i);
             let point1 = new cv.Point(face.x, face.y);
             let point2 = new cv.Point(face.x + face.width, face.y + face.height);
+
+            // Crop, convert to RGB, and resize the face region
+            let faceRegion = new cv.Mat();
+            cv.cvtColor(src, faceRegion, cv.COLOR_RGBA2RGB);
+            faceRegion = faceRegion.roi(face);
+            cv.resize(faceRegion, faceRegion, new cv.Size(128, 128));
+
+            let faceTensor = tf.tensor(faceRegion.data, [1, 128, 128, 3], 'float32');
+            faceTensor = faceTensor.div(tf.scalar(255.));
+            let age = model.predict(faceTensor).dataSync()[0];
+            const ageText = `Age: ${age.toFixed(2)}`;
+
+            // Bounding box + age
             cv.rectangle(dst, point1, point2, [255, 0, 0, 255]);
+            cv.putText(dst, ageText, point1, cv.FONT_HERSHEY_SIMPLEX, 0.9, [0, 255, 0, 255], 2);
+
+            // Clean up Mats
+            faceRegion.delete();
+            faceTensor.dispose();
         }
         cv.imshow("webcam_op", dst);
+
+        // Clean up Mats
+        src.delete();
+        dst.delete();
+        gray.delete();
+
         // schedule next one.
-        let delay = 1000/FPS - (Date.now() - begin);
+        let delay = 1000 / FPS - (Date.now() - begin);
         setTimeout(processVideo, delay);
     }
 
@@ -129,6 +156,6 @@ var model = undefined;
 
 tflite.loadTFLiteModel('age_detection.tflite').then(function (loadedModel) {
     model = loadedModel;
-    // Show demo section now model is ready to use.
+    // Show demo section when model is ready to use.
     ageDetectionSection.classList.remove('invisible');
 });
