@@ -3,7 +3,7 @@
 ### TODO
 1. ~~Train a simple age detection model~~
 2. ~~Convert trained model to TFLite~~
-3. Using Opencv JS & TFJS create a live age detection UI
+3. ~~Using Opencv JS & TFJS create a live age detection UI~~
 4. Dockerize the code & deploy the front end only code
 5. Add Github Actions
 6. Explore options to train and use Yolo for face detection
