@@ -92,7 +92,8 @@ async function predictAge(video) {
     
     let cap = new cv.VideoCapture('webcam_ip');
     const FPS = 10;
-    const contextSize = 5;
+    const contextWidth = video.width * 0.05;
+    const contextHeight = video.height * 0.10;
 
     function processVideo() {
 
@@ -113,13 +114,37 @@ async function predictAge(video) {
         }
         for (let i = 0; i < faces.size(); ++i) {
             let face = faces.get(i);
-            let point1 = new cv.Point(face.x, face.y);
-            let point2 = new cv.Point(face.x + face.width, face.y + face.height);
+            
+            // Bounding box that would be shown in the output
+            let bbPoint1 = new cv.Point(face.x, face.y);
+            let bbPoint2 = new cv.Point(face.x + face.width, face.y + face.height);
+            
+            // For the sake of our age prediction model
+            let x = face.x;
+            let y = face.y;
+            let width = face.width;
+            let height = face.height;
+
+            // Ensure the new bounding box stays within image boundaries
+            if (x - contextWidth >= 0) {
+                x -= contextWidth;
+                width += contextWidth;
+            }
+            if (y - contextHeight >= 0) {
+                y -= contextHeight;
+                height += contextHeight;
+            }
+            if (x + width + contextWidth <= src.cols) {
+                width += contextWidth;
+            }
+            if (y + height + contextHeight <= src.rows) {
+                height += contextHeight;
+            }
 
             // Crop, convert to RGB, and resize the face region
             let faceRegion = new cv.Mat();
             cv.cvtColor(src, faceRegion, cv.COLOR_RGBA2RGB);
-            faceRegion = faceRegion.roi(face);
+            faceRegion = faceRegion.roi(new cv.Rect(x, y, width, height));
             cv.resize(faceRegion, faceRegion, new cv.Size(128, 128));
 
             let faceTensor = tf.tensor(faceRegion.data, [1, 128, 128, 3], 'float32');
@@ -127,9 +152,12 @@ async function predictAge(video) {
             let age = model.predict(faceTensor).dataSync()[0];
             const ageText = `Age: ${age.toFixed(2)}`;
 
-            // Bounding box + age
-            cv.rectangle(dst, point1, point2, [255, 0, 0, 255]);
-            cv.putText(dst, ageText, point1, cv.FONT_HERSHEY_SIMPLEX, 0.9, [0, 255, 0, 255], 2);
+            // Display Bounding box
+            cv.rectangle(dst, bbPoint1, bbPoint2, [255, 0, 0, 255]);
+            // cv.rectangle(dst, new cv.Point(x, y), new cv.Point(x + width, y + height), [255, 0, 0, 255]);
+
+            // Display Age
+            cv.putText(dst, ageText, new cv.Point(x, y), cv.FONT_HERSHEY_SIMPLEX, 0.9, [0, 255, 0, 255], 2);
 
             // Clean up Mats
             faceRegion.delete();
