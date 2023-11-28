@@ -2,7 +2,9 @@
 
 The goal of this project is to explore the full end to end life cycle of a Machine learning project. Although the model predictions aren't great, the pipeline to build, train and deploy has been tested to work well. 
 
-A live inference demo is deployed on [Netlify](https://age-pred.netlify.app/).
+A live inference demo is deployed on 
+1. [Netlify](https://age-pred.netlify.app/).
+2. [AWS with custom Subdomain](https://age-prediction.deesa.space/).
 
 ### TODO
 1. ~~Train a simple age detection model~~
